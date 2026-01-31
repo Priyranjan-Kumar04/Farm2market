@@ -11,7 +11,7 @@ import Link from "next/link";
 
 const Hero = () => {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$'
+    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '₹'
 
     return (
         <div className='mx-6'>

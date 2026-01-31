@@ -54,7 +54,7 @@ const Navbar = () => {
             <div className="mx-6">
                 <div className="flex items-center justify-between max-w-7xl mx-auto py-4">
 
-                    {/* LOGO (UNCHANGED) */}
+                    {/* LOGO */}
                     <Link href="/" className="relative text-4xl font-semibold text-slate-700">
                         <span className="text-green-600">Fram</span>2Market
                         <span className="text-green-600 text-5xl">.</span>
@@ -66,10 +66,17 @@ const Navbar = () => {
                         </Protect>
                     </Link>
 
-                    {/* DESKTOP MENU (UNCHANGED) */}
+                    {/* DESKTOP MENU */}
                     <div className="hidden sm:flex items-center gap-4 lg:gap-8 text-slate-600">
                         <Link href="/">Home</Link>
                         <Link href="/shop">Shop</Link>
+
+                        {/* ✅ MY ORDERS (DESKTOP) */}
+                        {user && (
+                            <Link href="/orders" className="hover:text-green-600">
+                                My Orders
+                            </Link>
+                        )}
 
                         {/* Categories Desktop */}
                         <div
@@ -119,7 +126,6 @@ const Navbar = () => {
                         <Link href="/about">About</Link>
                         <Link href="/contact">Contact</Link>
 
-
                         <form onSubmit={handleSearch} className="hidden xl:flex items-center gap-2 bg-slate-100 px-4 py-3 rounded-full">
                             <Search size={18} />
                             <input
@@ -154,13 +160,20 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* MOBILE MENU – STYLE FIX ONLY */}
+            {/* MOBILE MENU */}
             {mobileOpen && (
                 <div className="sm:hidden border-t bg-white px-6 py-6">
                     <div className="flex flex-col gap-6 text-slate-700">
 
                         <Link href="/" onClick={() => setMobileOpen(false)}>Home</Link>
                         <Link href="/shop" onClick={() => setMobileOpen(false)}>Shop</Link>
+
+                        {/* ✅ MY ORDERS (MOBILE) */}
+                        {user && (
+                            <Link href="/orders" onClick={() => setMobileOpen(false)}>
+                                My Orders
+                            </Link>
+                        )}
 
                         <button onClick={() => setMobileCategories(!mobileCategories)} className="text-left">
                             Categories
