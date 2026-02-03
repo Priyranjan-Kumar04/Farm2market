@@ -27,6 +27,7 @@ const Footer = () => {
                 { text: "Privacy Policy", path: '/', icon: null },
                 { text: "Become Plus Member", path: '/pricing', icon: null },
                 { text: "Create Your Store", path: '/create-store', icon: null },
+                { text: "Admin Login", path: '/admin', icon: null },
             ]
         },
         {
