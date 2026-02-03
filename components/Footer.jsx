@@ -24,17 +24,18 @@ const Footer = () => {
             title: "WEBSITE?",
             links: [
                 { text: "Home", path: '/', icon: null },
-                { text: "Privacy Policy", path: '/', icon: null },
+                { text: "Privacy Policy", path: '/privacy-policy', icon: null },
                 { text: "Become Plus Member", path: '/pricing', icon: null },
                 { text: "Create Your Store", path: '/create-store', icon: null },
                 { text: "Admin Login", path: '/admin', icon: null },
+                { text: "Get App", path: '/api/download', icon: null, download: true },
             ]
         },
         {
             title: "CONTACT",
             links: [
-                { text: "+91-8270722026", path: '/', icon: MailIcon },
-                { text: "priyranjan1k@gmail.com", path: '/', icon: PhoneIcon },
+                { text: "priyranjan1k@gmail.com", path: '/', icon: MailIcon },
+                { text: "+91-8270722026", path: '/', icon: PhoneIcon },
                 { text: "Salem,Nammakal,Mahendra Institutions", path: '/', icon: MapPinIcon }
             ]
         }
@@ -72,7 +73,17 @@ const Footer = () => {
                                     {section.links.map((link, i) => (
                                         <li key={i} className="flex items-center gap-2">
                                             {link.icon && <link.icon />}
-                                            <Link href={link.path} className="hover:underline transition">{link.text}</Link>
+                                            {link.download ? (
+                                                <a 
+                                                    href={link.path} 
+                                                    download="Farm2Market.apk"
+                                                    className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition font-medium"
+                                                >
+                                                    {link.text}
+                                                </a>
+                                            ) : (
+                                                <Link href={link.path} className="hover:underline transition">{link.text}</Link>
+                                            )}
                                         </li>
                                     ))}
                                 </ul>
