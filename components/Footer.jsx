@@ -26,7 +26,7 @@ const Footer = () => {
                 { text: "Home", path: '/', icon: null },
                 { text: "Privacy Policy", path: '/privacy-policy', icon: null },
                 { text: "Become Plus Member", path: '/pricing', icon: null },
-                { text: "Create Your Store", path: '/create-store', icon: null },
+                { text: "Create Your Store", path: '/create-store', icon: null, button: true },
                 { text: "Admin Login", path: '/admin', icon: null },
                 { text: "Get App", path: '/api/download', icon: null, download: true },
             ]
@@ -81,6 +81,13 @@ const Footer = () => {
                                                 >
                                                     {link.text}
                                                 </a>
+                                            ) : link.button ? (
+                                                <Link 
+                                                    href={link.path}
+                                                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition font-medium"
+                                                >
+                                                    {link.text}
+                                                </Link>
                                             ) : (
                                                 <Link href={link.path} className="hover:underline transition">{link.text}</Link>
                                             )}

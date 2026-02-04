@@ -1,7 +1,7 @@
 'use client'
 import { PackageIcon, Search, ShoppingCart, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useUser, useClerk, UserButton, Protect } from "@clerk/nextjs"
@@ -11,42 +11,20 @@ const Navbar = () => {
     const { user } = useUser()
     const { openSignIn } = useClerk()
     const router = useRouter();
+    const pathname = usePathname();
 
     const [search, setSearch] = useState('')
-    const [showCategories, setShowCategories] = useState(false)
     const [mobileOpen, setMobileOpen] = useState(false)
-    const [mobileCategories, setMobileCategories] = useState(false)
     const hideTimeout = useRef(null)
 
     const cartCount = useSelector(state => state.cart.total)
 
+    // Show search box only on home, shop, and category pages
+    const showSearchBox = pathname === '/' || pathname === '/shop' || pathname.startsWith('/product/')
+
     const handleSearch = (e) => {
         e.preventDefault()
         router.push(`/shop?search=${search}`)
-    }
-
-    const categoriesData = {
-        Crops: [
-            { id: "rice", name: "Rice" },
-            { id: "wheat", name: "Wheat" },
-            { id: "maize", name: "Maize" },
-        ],
-        "Food Grains": [
-            { id: "barley", name: "Barley" },
-            { id: "millets", name: "Millets" },
-        ],
-        Pulses: [
-            { id: "lentils", name: "Lentils" },
-            { id: "chickpea", name: "Chickpea" },
-        ],
-        "Oil Crops": [
-            { id: "groundnut", name: "Groundnut" },
-            { id: "mustard", name: "Mustard" },
-        ],
-        Spices: [
-            { id: "turmeric", name: "Turmeric" },
-            { id: "chilli", name: "Chilli" },
-        ],
     }
 
     return (
@@ -77,51 +55,6 @@ const Navbar = () => {
                                 My Orders
                             </Link>
                         )}
-
-                        {/* Categories Desktop */}
-                        <div
-                            className="relative"
-                            onMouseEnter={() => {
-                                if (hideTimeout.current) clearTimeout(hideTimeout.current);
-                                setShowCategories(true);
-                            }}
-                            onMouseLeave={() => {
-                                hideTimeout.current = setTimeout(() => {
-                                    setShowCategories(false);
-                                }, 400);
-                            }}
-                        >
-                            <span className="cursor-pointer">Categories</span>
-
-                            {showCategories && (
-                                <div
-                                    className="absolute top-8 left-0 w-[300px] bg-white border shadow-lg rounded-lg p-4 z-50"
-                                    onMouseEnter={() => hideTimeout.current && clearTimeout(hideTimeout.current)}
-                                    onMouseLeave={() => {
-                                        hideTimeout.current = setTimeout(() => {
-                                            setShowCategories(false);
-                                        }, 400);
-                                    }}
-                                >
-                                    {Object.entries(categoriesData).map(([category, products]) => (
-                                        <div key={category} className="mb-4">
-                                            <h4 className="font-semibold mb-1">{category}</h4>
-                                            <ul className="pl-2 space-y-1">
-                                                {products.map(product => (
-                                                    <li
-                                                        key={product.id}
-                                                        onClick={() => router.push(`/product/${product.id}`)}
-                                                        className="text-sm cursor-pointer hover:text-green-600"
-                                                    >
-                                                        {product.name}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
 
                         <Link href="/about">About</Link>
                         <Link href="/contact">Contact</Link>
@@ -158,6 +91,22 @@ const Navbar = () => {
                         {mobileOpen ? <X size={26} /> : <Menu size={26} />}
                     </button>
                 </div>
+
+                {/* SEARCH BOX BELOW LOGO - Only on mobile and specific pages */}
+                {showSearchBox && (
+                    <div className="max-w-7xl mx-auto pb-4 sm:hidden">
+                        <form onSubmit={handleSearch} className="flex items-center gap-2 bg-slate-100 px-4 py-3 rounded-full w-full">
+                            <Search size={18} />
+                            <input
+                                className="bg-transparent outline-none flex-1"
+                                placeholder="Search products"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                required
+                            />
+                        </form>
+                    </div>
+                )}
             </div>
 
             {/* MOBILE MENU */}
@@ -173,34 +122,6 @@ const Navbar = () => {
                             <Link href="/orders" onClick={() => setMobileOpen(false)}>
                                 My Orders
                             </Link>
-                        )}
-
-                        <button onClick={() => setMobileCategories(!mobileCategories)} className="text-left">
-                            Categories
-                        </button>
-
-                        {mobileCategories && (
-                            <div className="pl-4 flex flex-col gap-4">
-                                {Object.entries(categoriesData).map(([category, products]) => (
-                                    <div key={category}>
-                                        <p className="font-semibold">{category}</p>
-                                        <div className="pl-3 flex flex-col gap-2">
-                                            {products.map(product => (
-                                                <span
-                                                    key={product.id}
-                                                    onClick={() => {
-                                                        router.push(`/product/${product.id}`)
-                                                        setMobileOpen(false)
-                                                    }}
-                                                    className="text-sm cursor-pointer hover:text-green-600"
-                                                >
-                                                    {product.name}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
                         )}
 
                         <Link href="/about" onClick={() => setMobileOpen(false)}>About</Link>
