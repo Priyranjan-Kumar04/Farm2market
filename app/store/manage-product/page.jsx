@@ -16,6 +16,10 @@ export default function StoreManageProducts() {
 
     const [loading, setLoading] = useState(true)
     const [products, setProducts] = useState([])
+    const [editingProduct, setEditingProduct] = useState(null)
+    const [editModalOpen, setEditModalOpen] = useState(false)
+
+    const categories = ['Grains', 'Pulses', 'Oil Seeds', 'Spice', 'Cash Crop', 'OrganicCrop', 'Floriculture', 'Medicine Plants', 'Plantation Crops', 'Others']
 
     const fetchProducts = async () => {
         try {
