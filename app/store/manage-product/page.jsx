@@ -47,7 +47,8 @@ export default function StoreManageProducts() {
     const openEditModal = (product) => {
         setEditingProduct({
             ...product,
-            images: [] // Reset images for file input
+            images: product.images || [], // Keep original images for display
+            newImages: [] // Track new images separately
         })
         setEditModalOpen(true)
     }
@@ -71,8 +72,8 @@ export default function StoreManageProducts() {
             formData.append('category', editingProduct.category)
             
             // Add images if new ones are selected
-            if (editingProduct.images && editingProduct.images.length > 0) {
-                editingProduct.images.forEach(image => {
+            if (editingProduct.newImages && editingProduct.newImages.length > 0) {
+                editingProduct.newImages.forEach(image => {
                     formData.append('images', image)
                 })
             }
@@ -191,7 +192,7 @@ export default function StoreManageProducts() {
                                     type="file" 
                                     multiple 
                                     accept="image/*" 
-                                    onChange={(e) => handleEditChange('images', Array.from(e.target.files))}
+                                    onChange={(e) => handleEditChange('newImages', Array.from(e.target.files))}
                                     className="mt-2 w-full p-2 border border-slate-300 rounded"
                                 />
                             </div>
