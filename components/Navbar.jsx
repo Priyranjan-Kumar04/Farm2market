@@ -125,6 +125,7 @@ const Navbar = () => {
                         )}
 
                         <Link href="/about" onClick={() => setMobileOpen(false)}>About</Link>
+                        <Link href="/contact" onClick={() => setMobileOpen(false)}>Contact</Link>
                         <Link href="/cart" onClick={() => setMobileOpen(false)}>Cart</Link>
 
                         {!user ? (
