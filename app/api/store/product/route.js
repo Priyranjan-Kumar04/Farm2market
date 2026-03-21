@@ -20,6 +20,7 @@ export async function POST(request){
         const mrp =  Number(formData.get("mrp"))
         const price = Number(formData.get("price"))
         const category = formData.get("category")
+        const quantity = Number(formData.get("quantity") || 0)
         const images = formData.getAll("images")
 
         if(!name || !description || !mrp || !price || !category || images.length < 1){
@@ -52,6 +53,7 @@ export async function POST(request){
                 mrp,
                 price,
                 category,
+                quantity,
                 images: imagesUrl,
                 storeId
              }
@@ -83,6 +85,7 @@ export async function PUT(request){
         const mrp = Number(formData.get("mrp"))
         const price = Number(formData.get("price"))
         const category = formData.get("category")
+        const quantity = Number(formData.get("quantity") || 0)
         const images = formData.getAll("images")
 
         if(!productId || !name || !description || !mrp || !price || !category){
@@ -132,6 +135,7 @@ export async function PUT(request){
                 mrp,
                 price,
                 category,
+                quantity,
                 images: imagesUrl
             }
         })

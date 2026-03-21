@@ -17,9 +17,9 @@ export default function StoreAddProduct() {
         mrp: 0,
         price: 0,
         category: "",
+        quantity: 0,
     })
     const [loading, setLoading] = useState(false)
-    const [aiUsed, setAiUsed] = useState(false)
 
     const { getToken } = useAuth()
 
@@ -29,48 +29,6 @@ export default function StoreAddProduct() {
 
     const handleImageUpload = async (key, file) => {
         setImages(prev => ({ ...prev, [key]: file }))
-
-        if (key === "1" && file && !aiUsed) {
-            const reader = new FileReader()
-            reader.readAsDataURL(file)
-            reader.onloadend = async () => {
-                const base64String = reader.result.split(",")[1]
-                const mimeType = file.type
-                const token = await getToken()
-
-                try {
-                    await toast.promise(
-                        axios.post(
-                            "/api/store/ai",
-                            { base64Image: base64String, mimeType },
-                            { headers: { Authorization: `Bearer ${token}` } }
-                        ),
-                        {
-                            loading: "Analyzing image with AI...",
-                            success: (res) => {
-                                console.log(res);
-                                
-                                const data = res.data
-                                if (data.name && data.description) {
-                                    setProductInfo(prev => ({
-                                        ...prev,
-                                        name: data.name,
-                                        description: data.description
-                                    }))
-                                    setAiUsed(true)
-                                    return "AI filled product info 🎉"
-                                }
-                                return "AI could not analyze the image"
-                            },
-                            error: (err) =>
-                                err?.response?.data?.error || err.message
-                        }
-                    )
-                } catch (error) {
-                    console.error(error)
-                }
-            }
-        }
     }
 
     const onSubmitHandler = async (e) => {
@@ -87,6 +45,7 @@ export default function StoreAddProduct() {
             formData.append('mrp', productInfo.mrp)
             formData.append('price', productInfo.price)
             formData.append('category', productInfo.category)
+            formData.append('quantity', productInfo.quantity)
 
             Object.keys(images).forEach((key) => {
                 images[key] && formData.append('images', images[key])
@@ -96,9 +55,8 @@ export default function StoreAddProduct() {
             const { data } = await axios.post('/api/store/product', formData, { headers: { Authorization: `Bearer ${token}` } })
             toast.success(data.message)
 
-            setProductInfo({ name: "", description: "", mrp: 0, price: 0, category: "" })
+            setProductInfo({ name: "", description: "", mrp: 0, price: 0, category: "", quantity: 0 })
             setImages({ 1: null, 2: null, 3: null, 4: null })
-            setAiUsed(false)
         } catch (error) {
             toast.error(error?.response?.data?.error || error.message)
         } finally {
@@ -152,6 +110,11 @@ export default function StoreAddProduct() {
                     <input type="number" name="price" onChange={onChangeHandler} value={productInfo.price} placeholder="0" className="w-full max-w-45 p-2 px-4 outline-none border border-slate-200 rounded" required />
                 </label>
             </div>
+
+            <label className="flex flex-col gap-2 my-6">
+                Quantity
+                <input type="number" name="quantity" onChange={onChangeHandler} value={productInfo.quantity} placeholder="0" className="w-full max-w-sm p-2 px-4 outline-none border border-slate-200 rounded" min="0" />
+            </label>
 
             <select onChange={e => setProductInfo({ ...productInfo, category: e.target.value })} value={productInfo.category} className="w-full max-w-sm p-2 px-4 my-6 outline-none border border-slate-200 rounded" required>
                 <option value="">Select a category</option>

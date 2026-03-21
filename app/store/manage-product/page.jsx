@@ -33,6 +33,10 @@ export default function StoreManageProducts() {
     }
 
     const toggleStock = async (productId) => {
+        if (!productId) {
+            toast.error("Product ID is required")
+            return
+        }
         try {
             const token = await getToken()
             const { data } = await axios.post('/api/store/stock-toggle',{ productId }, {headers: { Authorization: `Bearer ${token}` } })
@@ -48,7 +52,8 @@ export default function StoreManageProducts() {
         setEditingProduct({
             ...product,
             images: product.images || [], // Keep original images for display
-            newImages: [] // Track new images separately
+            newImages: [], // Track new images separately
+            quantity: product.quantity || 0 // Ensure quantity has a default value
         })
         setEditModalOpen(true)
     }
@@ -70,6 +75,7 @@ export default function StoreManageProducts() {
             formData.append('mrp', editingProduct.mrp)
             formData.append('price', editingProduct.price)
             formData.append('category', editingProduct.category)
+            formData.append('quantity', editingProduct.quantity)
             
             // Add images if new ones are selected
             if (editingProduct.newImages && editingProduct.newImages.length > 0) {
@@ -89,7 +95,7 @@ export default function StoreManageProducts() {
             setProducts(prevProducts => 
                 prevProducts.map(product => 
                     product.id === editingProduct.id 
-                        ? { ...product, ...editingProduct }
+                        ? { ...product, name: editingProduct.name, description: editingProduct.description, mrp: editingProduct.mrp, price: editingProduct.price, category: editingProduct.category, quantity: editingProduct.quantity }
                         : product
                 )
             )
@@ -259,6 +265,18 @@ export default function StoreManageProducts() {
                                         <option key={category} value={category}>{category}</option>
                                     ))}
                                 </select>
+                            </div>
+
+                            {/* Quantity */}
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">Quantity</label>
+                                <input 
+                                    type="number" 
+                                    value={editingProduct.quantity}
+                                    onChange={(e) => handleEditChange('quantity', Number(e.target.value))}
+                                    className="w-full p-2 border border-slate-300 rounded"
+                                    min="0"
+                                />
                             </div>
 
                             {/* Submit Button */}
