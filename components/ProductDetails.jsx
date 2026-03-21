@@ -57,11 +57,11 @@ const ProductDetails = ({ product }) => {
                     <p>Save {((product.mrp - product.price) / product.mrp * 100).toFixed(0)}% right now</p>
                 </div>
                 <div className="flex items-center gap-2 text-slate-500 mt-2">
-                    <p className="text-sm">Available Stock: <span className="font-semibold text-slate-700">{product.quantity || 0} units</span></p>
+                    <p className="text-lg font-semibold">Available Stock: <span className="text-xl font-bold text-slate-800">{product.quantity || 0} units</span></p>
                     {product.quantity > 0 ? (
-                        <span className="text-green-600 text-sm font-medium">In Stock</span>
+                        <span className="text-green-600 text-lg font-medium">In Stock</span>
                     ) : (
-                        <span className="text-red-600 text-sm font-medium">Out of Stock</span>
+                        <span className="text-red-600 text-lg font-medium">Out of Stock</span>
                     )}
                 </div>
                 <div className="flex items-end gap-5 mt-10">

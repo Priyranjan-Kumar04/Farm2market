@@ -16,8 +16,8 @@ const ProductCard = ({ product }) => {
             <div className='bg-[#F5F5F5] h-40  sm:w-60 sm:h-68 rounded-lg flex items-center justify-center relative'>
                 <Image width={500} height={500} className='max-h-30 sm:max-h-40 w-auto group-hover:scale-115 transition duration-300' src={product.images[0]} alt="" />
                 {product.quantity <= 0 && (
-                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                        Out of Stock
+                    <div className="absolute top-2 right-2 bg-red-500 text-white text-sm px-3 py-2 rounded font-bold">
+                        2x Large
                     </div>
                 )}
             </div>
@@ -29,7 +29,7 @@ const ProductCard = ({ product }) => {
                             <StarIcon key={index} size={14} className='text-transparent mt-0.5' fill={rating >= index + 1 ? "#00C950" : "#D1D5DB"} />
                         ))}
                     </div>
-                    <p className='text-xs text-slate-500 mt-1'>
+                    <p className='text-base font-semibold text-slate-700 mt-1'>
                         Stock: {product.quantity || 0} units
                     </p>
                 </div>
