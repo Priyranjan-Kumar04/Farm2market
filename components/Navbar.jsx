@@ -34,7 +34,7 @@ const Navbar = () => {
 
                     {/* LOGO */}
                     <Link href="/" className="relative text-4xl font-semibold text-slate-700">
-                        <span className="text-green-600">Fram</span>2Market
+                        <span className="text-green-600">Farm</span>2Market
                         <span className="text-green-600 text-5xl">.</span>
 
                         <Protect plan='plus'>

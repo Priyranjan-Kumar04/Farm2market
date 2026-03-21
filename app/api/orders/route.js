@@ -51,6 +51,14 @@ export async function POST(request){
 
          for(const item of items){
             const product = await prisma.product.findUnique({where: {id: item.id}})
+            
+            // Check if product has enough quantity
+            if(product.quantity < item.quantity){
+                return NextResponse.json({ 
+                    error: `Insufficient stock for ${product.name}. Available: ${product.quantity}, Requested: ${item.quantity}` 
+                }, { status: 400 })
+            }
+            
             const storeId = product.storeId
             if(!ordersByStore.has(storeId)){
                 ordersByStore.set(storeId, [])
@@ -96,6 +104,30 @@ export async function POST(request){
                 }
             })
             orderIds.push(order.id)
+         }
+
+         // Update product quantities only for COD orders
+         // For Stripe orders, inventory will be updated after successful payment
+         if(paymentMethod !== 'STRIPE'){
+            for(const item of items){
+                await prisma.product.update({
+                    where: {id: item.id},
+                    data: {
+                        quantity: {
+                            decrement: item.quantity
+                        }
+                    }
+                })
+                
+                // Update inStock status based on remaining quantity
+                const updatedProduct = await prisma.product.findUnique({where: {id: item.id}})
+                if(updatedProduct.quantity <= 0){
+                    await prisma.product.update({
+                        where: {id: item.id},
+                        data: {inStock: false}
+                    })
+                }
+            }
          }
 
          if(paymentMethod === 'STRIPE'){

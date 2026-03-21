@@ -56,6 +56,14 @@ const ProductDetails = ({ product }) => {
                     <TagIcon size={14} />
                     <p>Save {((product.mrp - product.price) / product.mrp * 100).toFixed(0)}% right now</p>
                 </div>
+                <div className="flex items-center gap-2 text-slate-500 mt-2">
+                    <p className="text-sm">Available Stock: <span className="font-semibold text-slate-700">{product.quantity || 0} units</span></p>
+                    {product.quantity > 0 ? (
+                        <span className="text-green-600 text-sm font-medium">In Stock</span>
+                    ) : (
+                        <span className="text-red-600 text-sm font-medium">Out of Stock</span>
+                    )}
+                </div>
                 <div className="flex items-end gap-5 mt-10">
                     {
                         cart[productId] && (
@@ -65,8 +73,16 @@ const ProductDetails = ({ product }) => {
                             </div>
                         )
                     }
-                    <button onClick={() => !cart[productId] ? addToCartHandler() : router.push('/cart')} className="bg-slate-800 text-white px-10 py-3 text-sm font-medium rounded hover:bg-slate-900 active:scale-95 transition">
-                        {!cart[productId] ? 'Add to Cart' : 'View Cart'}
+                    <button 
+                        onClick={() => !cart[productId] ? addToCartHandler() : router.push('/cart')} 
+                        disabled={product.quantity <= 0}
+                        className={`px-10 py-3 text-sm font-medium rounded transition ${
+                            product.quantity <= 0 
+                                ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                                : 'bg-slate-800 text-white hover:bg-slate-900 active:scale-95'
+                        }`}
+                    >
+                        {product.quantity <= 0 ? 'Out of Stock' : (!cart[productId] ? 'Add to Cart' : 'View Cart')}
                     </button>
                 </div>
                 <hr className="border-gray-300 my-5" />
