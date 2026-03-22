@@ -109,25 +109,26 @@ export async function POST(request){
          // Update product quantities only for COD orders
          // For Stripe orders, inventory will be updated after successful payment
          if(paymentMethod !== 'STRIPE'){
-            for(const item of items){
-                await prisma.product.update({
-                    where: {id: item.id},
-                    data: {
-                        quantity: {
-                            decrement: item.quantity
-                        }
-                    }
-                })
-                
-                // Update inStock status based on remaining quantity
-                const updatedProduct = await prisma.product.findUnique({where: {id: item.id}})
-                if(updatedProduct.quantity <= 0){
-                    await prisma.product.update({
+            await prisma.$transaction(async (tx) => {
+                for(const item of items){
+                    const updatedProduct = await tx.product.update({
                         where: {id: item.id},
-                        data: {inStock: false}
+                        data: {
+                            quantity: {
+                                decrement: item.quantity
+                            }
+                        }
                     })
+                    
+                    // Update inStock status based on remaining quantity
+                    if(updatedProduct.quantity <= 0){
+                        await tx.product.update({
+                            where: {id: item.id},
+                            data: {inStock: false}
+                        })
+                    }
                 }
-            }
+            })
          }
 
          if(paymentMethod === 'STRIPE'){

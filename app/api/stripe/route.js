@@ -26,67 +26,71 @@ export async function POST(request){
 
             if(isPaid){
                 // mark order as paid and update inventory
-                await Promise.all(orderIdsArray.map(async (orderId) => {
-                    const order = await prisma.order.update({
-                        where: {id: orderId},
-                        data: {isPaid: true},
-                        include: {orderItems: true}
-                    })
-
-                    // Update product quantities for successful Stripe payments
-                    for(const item of order.orderItems){
-                        await prisma.product.update({
-                            where: {id: item.productId},
-                            data: {
-                                quantity: {
-                                    decrement: item.quantity
-                                }
-                            }
+                await prisma.$transaction(async (tx) => {
+                    await Promise.all(orderIdsArray.map(async (orderId) => {
+                        const order = await tx.order.update({
+                            where: {id: orderId},
+                            data: {isPaid: true},
+                            include: {orderItems: true}
                         })
-                        
-                        // Update inStock status based on remaining quantity
-                        const updatedProduct = await prisma.product.findUnique({where: {id: item.productId}})
-                        if(updatedProduct.quantity <= 0){
-                            await prisma.product.update({
+
+                        // Update product quantities for successful Stripe payments
+                        for(const item of order.orderItems){
+                            const updatedProduct = await tx.product.update({
                                 where: {id: item.productId},
-                                data: {inStock: false}
+                                data: {
+                                    quantity: {
+                                        decrement: item.quantity
+                                    }
+                                }
                             })
+                            
+                            // Update inStock status based on remaining quantity
+                            if(updatedProduct.quantity <= 0){
+                                await tx.product.update({
+                                    where: {id: item.productId},
+                                    data: {inStock: false}
+                                })
+                            }
                         }
-                    }
-                }))
+                    }))
+                })
+                
                 // delete cart from user
                 await prisma.user.update({
                     where: {id: userId},
                     data: {cart : {}}
                 })
             }else{
-                 // Get order items to restore inventory
-                 const orders = await prisma.order.findMany({
-                    where: {id: {in: orderIdsArray}},
-                    include: {orderItems: true}
-                 })
+                 // Get order items to restore inventory and delete orders
+                 await prisma.$transaction(async (tx) => {
+                    const orders = await tx.order.findMany({
+                        where: {id: {in: orderIdsArray}},
+                        include: {orderItems: true}
+                     })
 
-                 // Restore inventory for failed payments
-                 for(const order of orders){
-                    for(const item of order.orderItems){
-                        await prisma.product.update({
-                            where: {id: item.productId},
-                            data: {
-                                quantity: {
-                                    increment: item.quantity
-                                },
-                                inStock: true // Restore inStock status when inventory is restored
-                            }
+                     // Restore inventory for failed payments
+                     for(const order of orders){
+                        for(const item of order.orderItems){
+                            await tx.product.update({
+                                where: {id: item.productId},
+                                data: {
+                                    quantity: {
+                                        increment: item.quantity
+                                    },
+                                    inStock: true // Restore inStock status when inventory is restored
+                                }
+                            })
+                        }
+                     }
+
+                     // delete order from db
+                     await Promise.all(orderIdsArray.map(async (orderId) => {
+                        await tx.order.delete({
+                            where: {id: orderId}
                         })
-                    }
-                 }
-
-                 // delete order from db
-                 await Promise.all(orderIdsArray.map(async (orderId) => {
-                    await prisma.order.delete({
-                        where: {id: orderId}
-                    })
-                 }))
+                     }))
+                 })
             }
         }
 
