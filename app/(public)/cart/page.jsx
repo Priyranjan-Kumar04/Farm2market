@@ -61,7 +61,7 @@ export default function Cart() {
                                 <th className="text-left">Product</th>
                                 <th>Quantity</th>
                                 <th>Total Price</th>
-                                <th className="max-md:hidden">Remove</th>
+                                <th>Remove</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -82,7 +82,7 @@ export default function Cart() {
                                             <Counter productId={item.id} />
                                         </td>
                                         <td className="text-center">{currency}{(item.price * item.quantity).toLocaleString()}</td>
-                                        <td className="text-center max-md:hidden">
+                                        <td className="text-center">
                                             <button onClick={() => handleDeleteItemFromCart(item.id)} className=" text-red-500 hover:bg-red-50 p-2.5 rounded-full active:scale-95 transition-all">
                                                 <Trash2Icon size={18} />
                                             </button>

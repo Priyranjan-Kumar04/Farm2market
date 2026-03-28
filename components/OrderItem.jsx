@@ -67,17 +67,37 @@ const OrderItem = ({ order }) => {
                     </div>
                 </td>
             </tr>
-            {/* Mobile */}
+            {/* Mobile Layout */}
             <tr className="md:hidden">
-                <td colSpan={5}>
-                    <p>{order.address.name}, {order.address.street}</p>
-                    <p>{order.address.city}, {order.address.state}, {order.address.zip}, {order.address.country}</p>
-                    <p>{order.address.phone}</p>
-                    <br />
-                    <div className="flex items-center">
-                        <span className='text-center mx-auto px-6 py-1.5 rounded bg-green-100 text-green-700' >
-                            {order.status.replace(/_/g, ' ').toLowerCase()}
-                        </span>
+                <td colSpan={4}>
+                    <div className="flex flex-col gap-4">
+                        {/* Total Price */}
+                        <div className="flex justify-between items-center bg-slate-50 p-3 rounded">
+                            <span className="font-medium">Total Price:</span>
+                            <span className="font-bold text-green-600">{currency}{order.total}</span>
+                        </div>
+                        
+                        {/* Address */}
+                        <div className="bg-slate-50 p-3 rounded">
+                            <p className="font-medium mb-2">Delivery Address:</p>
+                            <p className="text-sm">{order.address.name}, {order.address.street}</p>
+                            <p className="text-sm">{order.address.city}, {order.address.state}, {order.address.zip}</p>
+                            <p className="text-sm">{order.address.country}, {order.address.phone}</p>
+                        </div>
+                        
+                        {/* Order Status */}
+                        <div className="flex justify-center">
+                            <div className={`flex items-center justify-center gap-1 rounded-full px-4 py-2 ${
+                                order.status === 'confirmed'
+                                    ? 'text-yellow-500 bg-yellow-100'
+                                    : order.status === 'delivered'
+                                        ? 'text-green-500 bg-green-100'
+                                        : 'text-slate-500 bg-slate-100'
+                            }`}>
+                                <DotIcon size={10} className="scale-250" />
+                                {order.status.split('_').join(' ').toUpperCase()}
+                            </div>
+                        </div>
                     </div>
                 </td>
             </tr>
