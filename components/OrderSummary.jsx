@@ -45,14 +45,25 @@ const OrderSummary = ({ totalPrice, items }) => {
 
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
+        
+        // Show loading state
+        const loadingToast = toast.loading('Processing your order...');
+        
         try {
             if(!user){
-                return toast('Please login to place an order')
+                toast.dismiss(loadingToast);
+                return toast.error('Please login to place an order');
             }
             if(!selectedAddress){
-                return toast('Please select an address')
+                toast.dismiss(loadingToast);
+                return toast.error('Please select an address');
             }
+            
             const token = await getToken();
+            if(!token) {
+                toast.dismiss(loadingToast);
+                return toast.error('Authentication failed. Please login again.');
+            }
 
             const orderData = {
                 addressId: selectedAddress.id,
@@ -63,24 +74,44 @@ const OrderSummary = ({ totalPrice, items }) => {
             if(coupon){
                 orderData.couponCode = coupon.code
             }
-           // create order
-           const {data} = await axios.post('/api/orders', orderData, {
-            headers: { Authorization: `Bearer ${token}` }
-           })
 
-           if(paymentMethod === 'STRIPE'){
-            window.location.href = data.session.url;
-           }else{
-            toast.success(data.message)
-            router.push('/orders')
-            dispatch(fetchCart({getToken}))
-           }
+            console.log('Placing order with data:', orderData);
+
+            // Create order with timeout and better error handling
+            const {data} = await axios.post('/api/orders', orderData, {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 30000 // 30 second timeout
+            });
+
+            toast.dismiss(loadingToast);
+
+            if(paymentMethod === 'STRIPE'){
+                toast.success('Redirecting to payment...');
+                window.location.href = data.session.url;
+            }else{
+                toast.success('Order placed successfully! 🎉');
+                router.push('/orders');
+                dispatch(fetchCart({getToken}));
+            }
 
         } catch (error) {
-            toast.error(error?.response?.data?.error || error.message)
+            toast.dismiss(loadingToast);
+            
+            console.error('Order placement error:', error);
+            
+            // Better error messages
+            if(error.code === 'ECONNABORTED') {
+                toast.error('Request timed out. Please try again.');
+            } else if(error.response?.status === 401) {
+                toast.error('Session expired. Please login again.');
+            } else if(error.response?.status === 400) {
+                toast.error(error.response?.data?.error || 'Invalid order data');
+            } else if(error.response?.status === 500) {
+                toast.error('Server error. Please try again in a moment.');
+            } else {
+                toast.error(error.response?.data?.error || 'Failed to place order. Please try again.');
+            }
         }
-
-        
     }
 
     return (
